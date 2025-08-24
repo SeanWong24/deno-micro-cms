@@ -1,0 +1,6 @@
+{
+  "name": "deno-micro-cms",
+  "version": "0.0.0",
+  "unstable": ["kv"],
+  "exports": "./mod.ts"
+}
