@@ -1,4 +1,7 @@
+import authRouter from "./api/auth.ts";
 import { httpErrors, Router } from "./dep/oak.ts";
+import { path } from "./dep/std.ts";
+import { openapiSpecification } from "./openapi.ts";
 import config from "./service/config.ts";
 
 export function initializeRouter() {
@@ -24,9 +27,19 @@ function setupAPIRoutes() {
     prefix: config.API_ROUTE,
   });
   // TODO more to come
-  apiRouter.get("/", async (ctx) => {
-    ctx.response.body = "Hello, API!";
-  });
+  apiRouter
+    .use("/auth", authRouter.routes(), authRouter.allowedMethods())
+    .get("/", async (ctx) => {
+      ctx.response.headers.set("Content-type", "application/json");
+      if (config.OPENAPI_FILE_PATH) {
+        await ctx.send({
+          root: path.dirname(config.OPENAPI_FILE_PATH),
+          path: config.OPENAPI_FILE_PATH,
+        });
+        return;
+      }
+      ctx.response.body = openapiSpecification;
+    });
   console.groupEnd();
   console.timeEnd("Registering API routes");
   return apiRouter;
