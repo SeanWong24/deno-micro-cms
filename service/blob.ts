@@ -13,10 +13,11 @@ export async function initializeBlobService() {
     }.`,
     "font-style: italic"
   );
+  console.time("Initializing BLOB service");
   if (config.BLOB_PATH) {
     await Deno.mkdir(config.BLOB_PATH, { recursive: true });
   }
-  console.info("BLOB service initialized.");
+  console.timeEnd("Initializing BLOB service");
 }
 
 const KEY_PREFIX = ["blob"];

@@ -12,12 +12,13 @@ export async function initializeKvService() {
     }.`,
     "font-style: italic"
   );
+  console.time("Initializing KV service");
   if (config.DB_PATH) {
     const directoryPath = path.dirname(config.DB_PATH);
     await Deno.mkdir(directoryPath, { recursive: true });
   }
   kv = await Deno.openKv(config.DB_PATH);
-  console.info("KV service initialized.");
+  console.timeEnd("Initializing KV service");
 }
 
 export function useKv() {
