@@ -1,6 +1,7 @@
 import { Router, Status } from "../dep/oak.ts";
 import config from "../service/config.ts";
 import authMiddleware from "../middleware/auth.ts";
+import { createAuthenticationToken } from "../service/auth.ts";
 
 const authRouter = new Router();
 
@@ -37,7 +38,7 @@ authRouter
    *        description: The current session is not authenticated.
    */
   .get("/", authMiddleware, (ctx) => {
-    ctx.response.body = true;
+    ctx.response.body = "Authenticated";
   })
   /**
    * @openapi
@@ -62,22 +63,23 @@ authRouter
    *      403:
    *        description: Fail to sign in.
    */
-  .post("/sign-in", (ctx) => {
+  .post("/sign-in", async (ctx) => {
     const isCORS =
       config.CORS &&
       ctx.request.headers.get("Sec-Fetch-Site") !== "same-origin";
+    // TODO use body for passcode
     const passcode = ctx.request.url.searchParams.get("passcode");
     if (passcode != config.PASSCODE) {
       ctx.throw(Status.Forbidden);
     }
-    ctx.cookies.set("authenticated", "1", {
+    ctx.cookies.set("authenticated", await createAuthenticationToken(), {
       path: "/",
       httpOnly: true,
       sameSite: isCORS ? "none" : "lax",
       secure: isCORS ? true : undefined,
       ignoreInsecure: true,
     });
-    ctx.response.body = "Signed in.";
+    ctx.response.body = "Signed in";
   })
   /**
    * @openapi
@@ -105,7 +107,7 @@ authRouter
       secure: isCORS ? true : undefined,
       ignoreInsecure: true,
     });
-    ctx.response.body = "Signed out.";
+    ctx.response.body = "Signed out";
   });
 
 export default authRouter;
