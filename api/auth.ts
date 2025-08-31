@@ -47,12 +47,17 @@ authRouter
    *    tags:
    *      - Auth
    *    description: Sign in using a passcode. If succeed, an authentication cookie would be set.
-   *    parameters:
-   *      - name: passcode
-   *        in: query
-   *        required: true
-   *        schema:
-   *          type: string
+   *    requestBody:
+   *      required: true
+   *      content:
+   *        application/json:
+   *          schema:
+   *            type: object
+   *            required:
+   *              - passcode
+   *            properties:
+   *              passcode:
+   *                type: string
    *    responses:
    *      200:
    *        description: Succeed to sign in.
@@ -67,9 +72,8 @@ authRouter
     const isCORS =
       config.CORS &&
       ctx.request.headers.get("Sec-Fetch-Site") !== "same-origin";
-    // TODO use body for passcode
-    const passcode = ctx.request.url.searchParams.get("passcode");
-    if (passcode != config.PASSCODE) {
+    const { passcode } = await ctx.request.body.json();
+    if (passcode !== config.PASSCODE) {
       ctx.throw(Status.Forbidden);
     }
     ctx.cookies.set("authenticated", await createAuthenticationToken(), {
