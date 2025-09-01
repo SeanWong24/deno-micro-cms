@@ -79,7 +79,7 @@ authRouter
     ctx.cookies.set("authenticated", await createAuthenticationToken(), {
       path: "/",
       httpOnly: true,
-      sameSite: isCORS ? "none" : "lax",
+      sameSite: isCORS ? "none" : "strict",
       secure: isCORS ? true : undefined,
       ignoreInsecure: true,
     });
@@ -107,7 +107,7 @@ authRouter
     ctx.cookies.delete("authenticated", {
       path: "/",
       httpOnly: true,
-      sameSite: isCORS ? "none" : "lax",
+      sameSite: isCORS ? "none" : "strict",
       secure: isCORS ? true : undefined,
       ignoreInsecure: true,
     });
