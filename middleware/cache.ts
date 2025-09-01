@@ -15,10 +15,11 @@ export async function cacheMiddleware(ctx: Context, next: Next) {
         return;
       }
       await next();
+      console.info(`Cache miss for %c${ctx.request.url}`, "font-style: italic");
       if (ctx.response.status !== 200 || !ctx.response.body) {
         return;
       }
-      const response = buildWebResponse(ctx.response);
+      const response = await buildWebResponse(ctx.response);
       await cache.put(ctx.request.url, response);
       return;
     }
@@ -59,13 +60,16 @@ function applyCachedResponse(response: OakResponse, cachedResponse?: Response) {
   return response;
 }
 
-function buildWebResponse(oakResponse: OakResponse) {
+async function buildWebResponse(oakResponse: OakResponse) {
   let bodyInit: BodyInit;
   const body = oakResponse.body;
   if (body == null) {
     return generateDirtyMarker();
   } else if (body instanceof ReadableStream) {
-    [oakResponse.body, bodyInit] = body.tee();
+    const [body1, body2] = body.tee();
+    oakResponse.body = body1;
+    const blob = await new Response(body2).blob();
+    bodyInit = blob;
   } else if (typeof body === "string" || body instanceof Uint8Array) {
     bodyInit = body;
   } else {
