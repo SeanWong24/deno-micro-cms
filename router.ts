@@ -52,7 +52,7 @@ function setupStaticRoutes() {
   console.time("Registering static routes");
   const staticRouter = new Router();
   if (config.STATIC_ROUTES) {
-    const frontends = config.STATIC_ROUTES.split(":");
+    const frontends = config.STATIC_ROUTES.split(";");
     for (const frontend of frontends) {
       setupStaticRoute(frontend, staticRouter);
     }
