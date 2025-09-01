@@ -1,5 +1,5 @@
 import { Application } from "./dep/oak.ts";
-import { errorHandler } from "./middleware/error.ts";
+import { errorMiddleware } from "./middleware/error.ts";
 import { initializeRouter } from "./router.ts";
 import { initializeBlobService } from "./service/blob.ts";
 import config, { type AppConfig } from "./service/config.ts";
@@ -13,7 +13,7 @@ export async function setupApp(appConfig: AppConfig = {}) {
   Object.assign(config, appConfig);
   const router = initializeRouter();
   await initializeServices();
-  app.use(errorHandler);
+  app.use(errorMiddleware);
   app.use(router.routes());
   app.use(router.allowedMethods());
   console.groupEnd();

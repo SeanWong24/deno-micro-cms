@@ -1,6 +1,9 @@
 import { type Context, isHttpError } from "../dep/oak.ts";
 
-export async function errorHandler(ctx: Context, next: () => Promise<unknown>) {
+export async function errorMiddleware(
+  ctx: Context,
+  next: () => Promise<unknown>
+) {
   try {
     await next();
   } catch (err) {

@@ -1,6 +1,6 @@
 import { Router, Status } from "../dep/oak.ts";
 import config from "../service/config.ts";
-import authMiddleware from "../middleware/auth.ts";
+import { authMiddleware } from "../middleware/auth.ts";
 import { createAuthenticationToken } from "../service/auth.ts";
 
 const authRouter = new Router();
