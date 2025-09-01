@@ -49,12 +49,18 @@ export async function getBlob(key: string) {
   const contentType = (
     await kv.get(KEY_PREFIX.concat(key).concat("content-type"))
   ).value as string | null | undefined;
-  let buffer: Uint8Array | undefined = void 0;
+  let stream: ReadableStream<Uint8Array> | undefined = void 0;
   if (config.BLOB_PATH) {
-    buffer = await Deno.readFile(path.join(config.BLOB_PATH, key));
+    // TODO it seems to be automatically closed, but need to make sure
+    const file = await Deno.open(path.join(config.BLOB_PATH, key), {
+      read: true,
+    });
+    stream = file.readable;
+  } else {
+    stream = kvBlob.getAsStream(kv, KEY_PREFIX.concat(key));
   }
   return {
-    content: buffer ?? kvBlob.get(kv, KEY_PREFIX.concat(key), { stream: true }),
+    content: stream,
     contentType,
   };
 }
@@ -73,7 +79,9 @@ async function setblob(
     await Deno.writeFile(path.join(config.BLOB_PATH, key), value);
     return;
   }
-  await kvBlob.set(kv, KEY_PREFIX.concat(key), value);
+  // TODO this is a workaround for not able to pass stream directly (breaks data)
+  const blob = await new Response(value).blob();
+  await kvBlob.set(kv, KEY_PREFIX.concat(key), blob);
 }
 
 export async function createBlob(

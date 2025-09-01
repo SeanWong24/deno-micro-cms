@@ -1,4 +1,5 @@
 import authRouter from "./api/auth.ts";
+import blobRouter from "./api/blob.ts";
 import { httpErrors, Router } from "./dep/oak.ts";
 import { path } from "./dep/std.ts";
 import { openapiSpecification } from "./openapi.ts";
@@ -29,6 +30,7 @@ function setupAPIRoutes() {
   // TODO more to come
   apiRouter
     .use("/auth", authRouter.routes(), authRouter.allowedMethods())
+    .use("/blob", blobRouter.routes(), blobRouter.allowedMethods())
     .get("/", async (ctx) => {
       ctx.response.headers.set("Content-type", "application/json");
       if (config.OPENAPI_FILE_PATH) {
