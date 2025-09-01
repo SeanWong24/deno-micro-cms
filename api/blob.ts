@@ -1,5 +1,6 @@
 import { Router } from "../dep/oak.ts";
-import authMiddleware from "../middleware/auth.ts";
+import { authMiddleware } from "../middleware/auth.ts";
+import { cacheMiddleware } from "../middleware/cache.ts";
 import {
   createBlob,
   deleteBlob,
@@ -48,7 +49,7 @@ blobRouter
    *      200:
    *        description: The requested blob.
    */
-  .get("/:key", async (ctx) => {
+  .get("/:key", cacheMiddleware, async (ctx) => {
     const { content, contentType } = (await getBlob(ctx.params.key)) ?? {};
     contentType && ctx.response.headers.set("Content-Type", contentType);
     ctx.response.body = content;
@@ -76,7 +77,7 @@ blobRouter
    *      500:
    *        description: Failed.
    */
-  .post("/:key", authMiddleware, async (ctx) => {
+  .post("/:key", authMiddleware, cacheMiddleware, async (ctx) => {
     await createBlob(
       ctx.params.key,
       ctx.request.body.stream ?? new ReadableStream(),
@@ -107,7 +108,7 @@ blobRouter
    *      500:
    *        description: Failed.
    */
-  .put("/:key", authMiddleware, async (ctx) => {
+  .put("/:key", authMiddleware, cacheMiddleware, async (ctx) => {
     await updateBlob(
       ctx.params.key,
       ctx.request.body.stream ?? new ReadableStream(),
@@ -134,7 +135,7 @@ blobRouter
    *      200:
    *        description: Done.
    */
-  .delete("/:key", authMiddleware, async (ctx) => {
+  .delete("/:key", authMiddleware, cacheMiddleware, async (ctx) => {
     await deleteBlob(ctx.params.key);
     ctx.response.body = "Done";
   });
