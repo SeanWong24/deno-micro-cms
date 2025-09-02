@@ -86,7 +86,6 @@ function generateDirtyMarker() {
     status: Status.Conflict,
     headers: {
       "Cache-Control": "max-age=0, no-cache, must-revalidate",
-      "Content-Type": "text/plain",
       "X-Cache-Dirty": "true",
     },
   });
@@ -96,8 +95,5 @@ function isDirtyMarker(response?: Response) {
   if (!response) {
     return true;
   }
-  return (
-    response.status === Status.Conflict &&
-    response.headers.get("X-Cache-Dirty") === "true"
-  );
+  return response.headers.get("X-Cache-Dirty") === "true";
 }
