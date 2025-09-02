@@ -82,10 +82,11 @@ async function buildWebResponse(oakResponse: OakResponse) {
 }
 
 function generateDirtyMarker() {
-  return new Response(void 0, {
-    status: Status.NotFound,
+  return new Response(null, {
+    status: Status.Conflict,
     headers: {
       "Cache-Control": "max-age=0, no-cache, must-revalidate",
+      "Content-Type": "text/plain",
       "X-Cache-Dirty": "true",
     },
   });
@@ -96,7 +97,7 @@ function isDirtyMarker(response?: Response) {
     return true;
   }
   return (
-    response.status === Status.NotFound &&
+    response.status === Status.Conflict &&
     response.headers.get("X-Cache-Dirty") === "true"
   );
 }
