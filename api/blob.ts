@@ -1,4 +1,4 @@
-import { Router } from "../dep/oak.ts";
+import { Router, Status } from "../dep/oak.ts";
 import { authMiddleware } from "../middleware/auth.ts";
 import { cacheMiddleware } from "../middleware/cache.ts";
 import {
@@ -48,9 +48,16 @@ blobRouter
    *    responses:
    *      200:
    *        description: The requested blob.
+   *      404:
+   *        description: Blob not found.
    */
   .get("/:key", cacheMiddleware, async (ctx) => {
-    const { content, contentType } = (await getBlob(ctx.params.key)) ?? {};
+    const blob = await getBlob(ctx.params.key);
+    if (!blob) {
+      ctx.throw(Status.NotFound, "Blob not found.");
+      return;
+    }
+    const { content, contentType } = blob ?? {};
     contentType && ctx.response.headers.set("Content-Type", contentType);
     ctx.response.body = content;
   })
@@ -71,6 +78,11 @@ blobRouter
    *          type: string
    *    requestBody:
    *      required: true
+   *      content:
+   *        application/octet-stream:
+   *          schema:
+   *            type: string
+   *            format: binary
    *    responses:
    *      200:
    *        description: Done.
@@ -102,6 +114,11 @@ blobRouter
    *          type: string
    *    requestBody:
    *      required: true
+   *      content:
+   *        application/octet-stream:
+   *          schema:
+   *            type: string
+   *            format: binary
    *    responses:
    *      200:
    *        description: Done.
