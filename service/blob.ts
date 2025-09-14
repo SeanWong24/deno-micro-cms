@@ -101,7 +101,7 @@ export async function updateBlob(
   contentType?: string | null
 ) {
   if (!(await checkIfBlobExists(key))) {
-    throw new HttpError("The blob does not exists.");
+    throw new HttpError("The blob does not exist.");
   }
   await setblob(key, value, contentType ?? void 0);
 }
