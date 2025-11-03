@@ -1,3 +1,4 @@
+// deno-lint-ignore no-import-prefix
 import swaggerJsDoc from "npm:swagger-jsdoc@6.2.8";
 
 const options = {

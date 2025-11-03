@@ -71,7 +71,7 @@ async function buildWebResponse(oakResponse: OakResponse) {
     const blob = await new Response(body2).blob();
     bodyInit = blob;
   } else if (typeof body === "string" || body instanceof Uint8Array) {
-    bodyInit = body;
+    bodyInit = body as BodyInit;
   } else {
     return generateDirtyMarker();
   }
