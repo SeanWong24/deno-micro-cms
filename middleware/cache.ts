@@ -5,9 +5,17 @@ import {
   type Response as OakResponse,
 } from "../dep/oak.ts";
 
-const cache = await caches.open("blob");
+let cache: Cache | undefined;
+try {
+  cache = await caches.open("blob");
+} catch {
+  console.error("Failed to open cache storage, caching disabled.");
+}
 
 export async function cacheMiddleware(ctx: Context, next: Next) {
+  if (!cache) {
+    return;
+  }
   switch (ctx.request.method) {
     case "GET": {
       const cachedResponse = await getCachedResponse(ctx.request.url);
@@ -41,6 +49,9 @@ export async function cacheMiddleware(ctx: Context, next: Next) {
 }
 
 async function getCachedResponse(request: RequestInfo | URL) {
+  if (!cache) {
+    throw new Error("Cache not available.");
+  }
   const response = await cache.match(request);
   if (isDirtyMarker(response)) {
     return void 0;
